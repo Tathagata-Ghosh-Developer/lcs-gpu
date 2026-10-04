@@ -185,7 +185,7 @@ declare -A OMP_MEANS
 
 for THREADS in ${THREAD_CONFIGS}; do
     echo "--- OpenMP (${THREADS} Threads) ---"
-    echo "    Algorithm: Parallel Suffix Array + LCP"
+    echo "    Algorithm: 7-mer hash index + SIMD extension"
 
     run_openmp_warmups "${THREADS}" "${SIZE}"
     export OMP_NUM_THREADS=${THREADS}
@@ -207,7 +207,7 @@ for THREADS in ${THREAD_CONFIGS}; do
 done
 
 echo "--- CUDA GPU ---"
-echo "    Algorithm: O(N) SA-IS + GPU Max Reduction"
+echo "    Algorithm: prefix-doubling suffix array + GPU LCP/max kernel"
 
 CUDA_TIMES=""
 run_cuda_warmups "${SIZE}" "benchmark"

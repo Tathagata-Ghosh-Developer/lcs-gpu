@@ -77,7 +77,7 @@ echo "  Warm-up runs:     ${WARMUP_RUNS} (not measured)"
 echo "  Serial runs:      ${SERIAL_RUNS}"
 echo "  Runs per config:  ${RUNS} (for statistical significance)"
 echo "  Thread configs:   ${THREAD_CONFIGS}"
-echo "  Algorithm:        O(N) SA-IS (Induced Sorting) + LCP"
+echo "  Algorithms:       serial SA-IS+LCP / OpenMP k-mer index / CUDA prefix doubling"
 echo "======================================================"
 echo ""
 
@@ -138,7 +138,7 @@ echo ""
 # CUDA benchmark
 echo "======================================================"
 echo "  CUDA BENCHMARK - GPU"
-echo "  Algorithm: O(N) SA-IS + GPU Max Reduction"
+echo "  Algorithm: prefix-doubling suffix array + GPU LCP/max kernel"
 echo "  Runs: ${RUNS}"
 echo "======================================================"
 
@@ -188,7 +188,7 @@ echo ""
 for THREADS in ${THREAD_CONFIGS}; do
     echo "======================================================"
     echo "  OPENMP BENCHMARK - ${THREADS} THREADS"
-    echo "  Algorithm: Parallel Suffix Array + LCP"
+    echo "  Algorithm: 7-mer hash index + SIMD extension"
     echo "  Runs: ${RUNS}"
     echo "======================================================"
     export OMP_NUM_THREADS=${THREADS}
