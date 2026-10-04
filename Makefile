@@ -33,7 +33,7 @@ OPENMP := $(BIN_DIR)/lcs_openmp
 CUDA   := $(BIN_DIR)/lcs_cuda
 OPENMP_TAU := $(BIN_DIR)/lcs_openmp_tau
 
-.PHONY: all cpu clean help verify profile-tau lcs_serial lcs_openmp lcs_cuda lcs_openmp_tau
+.PHONY: all cpu clean help verify check-cpu profile-tau lcs_serial lcs_openmp lcs_cuda lcs_openmp_tau
 
 all: $(SERIAL) $(OPENMP) $(CUDA)
 	@echo ""
@@ -92,6 +92,10 @@ verify: all
 	@echo ""
 	@echo "All tests PASSED!"
 
+# Seeded comparison of the benchmark code paths (no GPU needed)
+check-cpu: cpu
+	bash scripts/cross_check.sh
+
 clean:
 	rm -rf $(BIN_DIR)
 	rm -f *.nsys-rep *.ncu-rep *.sqlite
@@ -113,6 +117,7 @@ help:
 	@echo "  make all      - Build lcs_serial, lcs_openmp and lcs_cuda"
 	@echo "  make cpu      - Build lcs_serial and lcs_openmp only (no nvcc)"
 	@echo "  make verify   - Build and run correctness tests"
+	@echo "  make check-cpu - Seeded serial vs OpenMP check of the fast path"
 	@echo "  make clean    - Remove all executables"
 	@echo "  make help     - Show this help message"
 	@echo ""
