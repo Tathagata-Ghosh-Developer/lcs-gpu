@@ -1,0 +1,66 @@
+CUDA timeline profile: one Nsight Systems run of bin/lcs_cuda at N = 100,000,000
+(after 5 unmeasured warm-up runs). Excerpt of the profiling job output; host
+names and file paths removed. Single run, so treat as indicative, not a mean.
+
+Hardware: Intel Xeon Platinum 8352V (36 cores / 72 threads), NVIDIA RTX A5000 24 GB,
+driver 550.142, Nsight Systems 2022.4.2
+
+--- program output ---
+GPU: NVIDIA RTX A5000 (64 SMs)
+Algorithm: Prefix Doubling + Thrust Radix Sort + GPU LCP Reduce
+Size: 100000000 elements
+Phase Time H2D: 0.0239949 s
+Phase Time SA: 0.444502 s
+Phase Time Kernel: 0.0846374 s
+Phase Time D2H: 1.7536e-05 s
+Time: 0.717664 s
+Result: 11
+
+--- Nsight Systems summaries ---
+[4/7] Executing 'cudaapisum' stats report
+
+ Time (%)  Total Time (ns)  Num Calls   Avg (ns)   Med (ns)   Min (ns)  Max (ns)  StdDev (ns)           Name         
+ --------  ---------------  ---------  ----------  ---------  --------  --------  -----------  ----------------------
+     42.7        268462919         18  14914606.6   449452.5      2056  64680298   27350477.0  cudaFree              
+     29.1        183024835         22   8319310.7  2526256.0      1861  38120071   14185208.2  cudaStreamSynchronize 
+     13.4         84618675          4  21154668.8     2407.0      1729  84612132   42304975.5  cudaDeviceSynchronize 
+     11.6         73104788         18   4061377.1    55122.0      2678  67927263   15948957.9  cudaMalloc            
+      3.1         19432774         10   1943277.4    14236.5      6586  19330410    6109216.8  cudaMemcpy            
+      0.1           404283         71      5694.1     3683.0      2576     29876       5417.6  cudaLaunchKernel      
+      0.0           152771         40      3819.3     2930.5      2718      7908       1704.0  cudaMemsetAsync       
+      0.0             4291          1      4291.0     4291.0      4291      4291          0.0  cudaMemset            
+      0.0             1500          1      1500.0     1500.0      1500      1500          0.0  cuModuleGetLoadingMode
+
+[5/7] Executing 'gpukernsum' stats report
+
+ Time (%)  Total Time (ns)  Instances   Avg (ns)    Med (ns)   Min (ns)  Max (ns)  StdDev (ns)      GridXYZ          BlockXYZ                                                     Name                                                
+ --------  ---------------  ---------  ----------  ----------  --------  --------  -----------  ----------------  --------------  ----------------------------------------------------------------------------------------------------
+     44.2        231711042         32   7240970.1   7175925.5   7151782   7617315     119478.6  52084    1    1    384    1    1  void cub::DeviceRadixSortOnesweepKernel<cub::DeviceRadixSortPolicy<unsigned long long, int, int>::P…
+     28.7        150367216          4  37591804.0  38072514.0  36104506  38117682     991865.3  390626    1    1   256    1    1  void thrust::cuda_cub::core::_kernel_agent<thrust::cuda_cub::__parallel_for::ParallelForAgent<thrus…
+     16.2         84608581          1  84608581.0  84608581.0  84608581  84608581          0.0   384    1    1     256    1    1  lcp_and_reduce_kernel(const unsigned char *, const int *, int, int, int *)                          
+      2.9         15001000          4   3750250.0   3754434.0   3727474   3764658      16994.3  223215    1    1   128    1    1  void thrust::cuda_cub::core::_kernel_agent<thrust::cuda_cub::__adjacent_difference::AdjacentDiffere…
+      2.8         14786185          4   3696546.3   3759186.0   3507059   3760754     126328.2  781251    1    1   256    1    1  pack_keys_kernel(const int *, unsigned long long *, int, int)                                       
+      1.9         10112220          4   2528055.0   2529559.0   2521751   2531351       4431.5  104167    1    1   128    1    1  void cub::DeviceScanKernel<cub::DeviceScanPolicy<int>::Policy600, thrust::device_ptr<int>, thrust::…
+      1.8          9645149          4   2411287.3   2461527.0   2257144   2464951     102776.6   704    1    1     128    1    1  void cub::DeviceRadixSortHistogramKernel<cub::DeviceRadixSortPolicy<unsigned long long, int, int>::…
+      1.1          5826249          5   1165249.8   1194395.0   1119036   1196315      41481.4  390626    1    1   256    1    1  void thrust::cuda_cub::core::_kernel_agent<thrust::cuda_cub::__parallel_for::ParallelForAgent<thrus…
+      0.3          1533115          1   1533115.0   1533115.0   1533115   1533115          0.0  390626    1    1   256    1    1  void thrust::cuda_cub::core::_kernel_agent<thrust::cuda_cub::__parallel_for::ParallelForAgent<thrus…
+      0.0           178496          4     44624.0     44704.0     44096     44992        378.2  1744    1    1     128    1    1  void thrust::cuda_cub::core::_kernel_agent<thrust::cuda_cub::__adjacent_difference::InitAgent<thrus…
+      0.0            11648          4      2912.0      2864.0      2848      3072        107.7   814    1    1     128    1    1  void cub::DeviceScanInitKernel<cub::ScanTileState<int, (bool)1>>(T1, int)                           
+      0.0            11200          4      2800.0      2832.0      2624      2912        123.9     8    1    1     256    1    1  void cub::DeviceRadixSortExclusiveSumKernel<cub::DeviceRadixSortPolicy<unsigned long long, int, int…
+
+[6/7] Executing 'gpumemtimesum' stats report
+
+ Time (%)  Total Time (ns)  Count  Avg (ns)   Med (ns)  Min (ns)  Max (ns)  StdDev (ns)      Operation     
+ --------  ---------------  -----  ---------  --------  --------  --------  -----------  ------------------
+     88.6         19225402      5  3845080.4    1185.0      1184  19220569    8595159.4  [CUDA memcpy HtoD]
+     11.4          2470903     41    60265.9   76415.0      1152     79296      31350.7  [CUDA memset]     
+      0.0             9473      5     1894.6    1984.0      1216      2336        410.7  [CUDA memcpy DtoH]
+
+[7/7] Executing 'gpumemsizesum' stats report
+
+ Total (MB)  Count  Avg (MB)  Med (MB)  Min (MB)  Max (MB)  StdDev (MB)      Operation     
+ ----------  -----  --------  --------  --------  --------  -----------  ------------------
+   1706.721     41    41.627    53.334     0.000    53.334       22.349  [CUDA memset]     
+    200.000      5    40.000     0.000     0.000   200.000       89.443  [CUDA memcpy HtoD]
+      0.000      5     0.000     0.000     0.000     0.000        0.000  [CUDA memcpy DtoH]
+

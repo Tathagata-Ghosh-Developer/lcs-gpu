@@ -1,0 +1,391 @@
+======================================================
+  LCS BENCHMARK - STATISTICAL PERFORMANCE ANALYSIS
+======================================================
+Job ID: 17086
+Node: <compute-node>
+Date: Wed Feb 25 13:49:40 IST 2026
+
+--- SYSTEM INFO ---
+CPU:     Intel(R) Xeon(R) Platinum 8352V CPU @ 2.10GHz
+CPUs:    72 available (36 physical cores x 2 threads)
+Memory:  124Gi
+NVIDIA RTX A5000, 24564 MiB
+======================================================
+
+Building executables...
+rm -f lcs_serial lcs_openmp lcs_cuda lcs_openmp_tau
+rm -f *.nsys-rep *.ncu-rep *.sqlite *.csv *.bin
+rm -f *_output.txt
+rm -rf profile.* MULTI__* tauprofile.*
+Building Serial checker (SA-IS + LCP)...
+g++ -O3 -fopenmp -march=native -std=c++17 lcs_serial.cpp -o lcs_serial
+  [OK] lcs_serial
+Building OpenMP (Prefix Doubling + Parallel Radix + LCP)...
+g++ -O3 -fopenmp -march=native -std=c++17 lcs_openmp.cpp -o lcs_openmp
+  [OK] lcs_openmp
+Building CUDA (Prefix Doubling + Thrust + GPU LCP Reduction)...
+nvcc -O3 -arch=sm_86 -lineinfo --use_fast_math -std=c++17 -Xcompiler -fopenmp --extended-lambda --expt-relaxed-constexpr -maxrregcount=32 -DUSE_NVTX lcs_cuda.cu -o lcs_cuda -lnvToolsExt 2>/dev/null || \
+nvcc -O3 -arch=sm_86 -lineinfo --use_fast_math -std=c++17 -Xcompiler -fopenmp --extended-lambda --expt-relaxed-constexpr -maxrregcount=32 lcs_cuda.cu -o lcs_cuda
+  [OK] lcs_cuda
+
+Build complete! Usage:
+  ./lcs_serial <size> [0|1] [seed]
+  ./lcs_openmp <size> [0|1]   # 0=benchmark, 1=debug
+  ./lcs_cuda <size> [0|1]
+Build complete. Executables verified.
+
+======================================================
+  BENCHMARK CONFIGURATION
+======================================================
+  Input Size:       100000000 (100 Million elements)
+  Warm-up runs:     5 (not measured)
+  Serial runs:      5
+  Runs per config:  30 (for statistical significance)
+  Thread configs:   16 32 36 64 72
+  Algorithm:        O(N) SA-IS (Induced Sorting) + LCP
+======================================================
+
+======================================================
+  SERIAL BENCHMARK - REFERENCE CPU
+  Runs: 5
+======================================================
+  Run  1/5: 44.8253 s
+  Run  2/5: 44.752 s
+  Run  3/5: 44.7618 s
+  Run  4/5: 44.7207 s
+  Run  5/5: 44.769 s
+
+  Summary (Serial CPU):
+    Mean:     44.765760 s
+    Std Dev:  0.038049 s
+    95% CI:   +/-0.033351 s
+
+======================================================
+  CUDA BENCHMARK - GPU
+  Algorithm: O(N) SA-IS + GPU Max Reduction
+  Runs: 30
+======================================================
+Running 5 CUDA warm-up runs (not measured)...
+  Warm-up 1/5: 0.680309 s
+  Warm-up 2/5: 0.646491 s
+  Warm-up 3/5: 0.646249 s
+  Warm-up 4/5: 0.647097 s
+  Warm-up 5/5: 0.646077 s
+  Run  1/30: 0.646346 s
+  Run  2/30: 0.646528 s
+  Run  3/30: 0.646193 s
+  Run  4/30: 0.647544 s
+  Run  5/30: 0.649342 s
+  Run  6/30: 0.647042 s
+  Run  7/30: 0.646813 s
+  Run  8/30: 0.645899 s
+  Run  9/30: 0.646646 s
+  Run 10/30: 0.647653 s
+  Run 11/30: 0.648788 s
+  Run 12/30: 0.646079 s
+  Run 13/30: 0.646551 s
+  Run 14/30: 0.646411 s
+  Run 15/30: 0.646919 s
+  Run 16/30: 0.646099 s
+  Run 17/30: 0.646457 s
+  Run 18/30: 0.646968 s
+  Run 19/30: 0.646475 s
+  Run 20/30: 0.650298 s
+  Run 21/30: 0.646442 s
+  Run 22/30: 0.646979 s
+  Run 23/30: 0.646447 s
+  Run 24/30: 0.647208 s
+  Run 25/30: 0.646242 s
+  Run 26/30: 0.646652 s
+  Run 27/30: 0.646819 s
+  Run 28/30: 0.647315 s
+  Run 29/30: 0.646415 s
+  Run 30/30: 0.646722 s
+
+  Summary (CUDA GPU):
+    Mean:     0.646943 s
+    Std Dev:  0.000975 s
+    95% CI:   +/-0.000349 s
+
+======================================================
+  OPENMP BENCHMARK - 16 THREADS
+  Algorithm: Parallel Suffix Array + LCP
+  Runs: 30
+======================================================
+Running 5 warm-up runs (not measured)...
+  Warm-up 1/5: 3.53843 s
+  Warm-up 2/5: 3.54074 s
+  Warm-up 3/5: 3.55049 s
+  Warm-up 4/5: 3.54331 s
+  Warm-up 5/5: 3.5412 s
+  Run  1/30: 3.54474 s
+  Run  2/30: 3.53691 s
+  Run  3/30: 3.54294 s
+  Run  4/30: 3.53936 s
+  Run  5/30: 3.54234 s
+  Run  6/30: 3.54306 s
+  Run  7/30: 3.54078 s
+  Run  8/30: 3.54027 s
+  Run  9/30: 3.54446 s
+  Run 10/30: 3.54408 s
+  Run 11/30: 3.57218 s
+  Run 12/30: 3.54417 s
+  Run 13/30: 3.54479 s
+  Run 14/30: 3.54322 s
+  Run 15/30: 3.54363 s
+  Run 16/30: 3.54282 s
+  Run 17/30: 3.54917 s
+  Run 18/30: 3.54777 s
+  Run 19/30: 3.54107 s
+  Run 20/30: 3.5488 s
+  Run 21/30: 3.53999 s
+  Run 22/30: 3.53982 s
+  Run 23/30: 3.54806 s
+  Run 24/30: 3.53959 s
+  Run 25/30: 3.54271 s
+  Run 26/30: 3.54346 s
+  Run 27/30: 3.54516 s
+  Run 28/30: 3.54691 s
+  Run 29/30: 3.53879 s
+  Run 30/30: 3.54353 s
+
+  Summary (16 threads):
+    Mean:     3.544153 s
+    Std Dev:  0.006100 s
+    95% CI:   +/-0.002183 s
+
+======================================================
+  OPENMP BENCHMARK - 32 THREADS
+  Algorithm: Parallel Suffix Array + LCP
+  Runs: 30
+======================================================
+Running 5 warm-up runs (not measured)...
+  Warm-up 1/5: 3.42047 s
+  Warm-up 2/5: 3.41806 s
+  Warm-up 3/5: 3.42046 s
+  Warm-up 4/5: 3.43558 s
+  Warm-up 5/5: 3.41938 s
+  Run  1/30: 3.41913 s
+  Run  2/30: 3.42309 s
+  Run  3/30: 3.42123 s
+  Run  4/30: 3.4206 s
+  Run  5/30: 3.42272 s
+  Run  6/30: 3.42089 s
+  Run  7/30: 3.42181 s
+  Run  8/30: 3.41976 s
+  Run  9/30: 3.41971 s
+  Run 10/30: 3.41879 s
+  Run 11/30: 3.42472 s
+  Run 12/30: 3.42243 s
+  Run 13/30: 3.42035 s
+  Run 14/30: 3.41763 s
+  Run 15/30: 3.42325 s
+  Run 16/30: 3.41999 s
+  Run 17/30: 3.41783 s
+  Run 18/30: 3.42299 s
+  Run 19/30: 3.42576 s
+  Run 20/30: 3.41376 s
+  Run 21/30: 3.41849 s
+  Run 22/30: 3.41757 s
+  Run 23/30: 3.42189 s
+  Run 24/30: 3.41842 s
+  Run 25/30: 3.42112 s
+  Run 26/30: 3.42945 s
+  Run 27/30: 3.41864 s
+  Run 28/30: 3.42189 s
+  Run 29/30: 3.41619 s
+  Run 30/30: 3.42316 s
+
+  Summary (32 threads):
+    Mean:     3.420775 s
+    Std Dev:  0.003064 s
+    95% CI:   +/-0.001096 s
+
+======================================================
+  OPENMP BENCHMARK - 36 THREADS
+  Algorithm: Parallel Suffix Array + LCP
+  Runs: 30
+======================================================
+Running 5 warm-up runs (not measured)...
+  Warm-up 1/5: 3.40947 s
+  Warm-up 2/5: 3.40036 s
+  Warm-up 3/5: 3.39998 s
+  Warm-up 4/5: 3.4063 s
+  Warm-up 5/5: 3.41167 s
+  Run  1/30: 3.40138 s
+  Run  2/30: 3.40185 s
+  Run  3/30: 3.40059 s
+  Run  4/30: 3.40034 s
+  Run  5/30: 3.40356 s
+  Run  6/30: 3.40163 s
+  Run  7/30: 3.40085 s
+  Run  8/30: 3.40224 s
+  Run  9/30: 3.40486 s
+  Run 10/30: 3.4011 s
+  Run 11/30: 3.40286 s
+  Run 12/30: 3.40254 s
+  Run 13/30: 3.40236 s
+  Run 14/30: 3.4005 s
+  Run 15/30: 3.39862 s
+  Run 16/30: 3.40638 s
+  Run 17/30: 3.40302 s
+  Run 18/30: 3.40078 s
+  Run 19/30: 3.40098 s
+  Run 20/30: 3.41267 s
+  Run 21/30: 3.40457 s
+  Run 22/30: 3.40566 s
+  Run 23/30: 3.40646 s
+  Run 24/30: 3.40174 s
+  Run 25/30: 3.40469 s
+  Run 26/30: 3.41608 s
+  Run 27/30: 3.40974 s
+  Run 28/30: 3.40163 s
+  Run 29/30: 3.40497 s
+  Run 30/30: 3.4076 s
+
+  Summary (36 threads):
+    Mean:     3.403742 s
+    Std Dev:  0.003825 s
+    95% CI:   +/-0.001369 s
+
+======================================================
+  OPENMP BENCHMARK - 64 THREADS
+  Algorithm: Parallel Suffix Array + LCP
+  Runs: 30
+======================================================
+Running 5 warm-up runs (not measured)...
+  Warm-up 1/5: 3.38431 s
+  Warm-up 2/5: 3.38299 s
+  Warm-up 3/5: 3.38383 s
+  Warm-up 4/5: 3.38382 s
+  Warm-up 5/5: 3.38315 s
+  Run  1/30: 3.3838 s
+  Run  2/30: 3.38742 s
+  Run  3/30: 3.3806 s
+  Run  4/30: 3.38622 s
+  Run  5/30: 3.38421 s
+  Run  6/30: 3.38661 s
+  Run  7/30: 3.38695 s
+  Run  8/30: 3.3891 s
+  Run  9/30: 3.38521 s
+  Run 10/30: 3.38664 s
+  Run 11/30: 3.38627 s
+  Run 12/30: 3.38482 s
+  Run 13/30: 3.38553 s
+  Run 14/30: 3.38369 s
+  Run 15/30: 3.38532 s
+  Run 16/30: 3.38529 s
+  Run 17/30: 3.38846 s
+  Run 18/30: 3.38829 s
+  Run 19/30: 3.38316 s
+  Run 20/30: 3.38525 s
+  Run 21/30: 3.38726 s
+  Run 22/30: 3.38997 s
+  Run 23/30: 3.38631 s
+  Run 24/30: 3.3893 s
+  Run 25/30: 3.38577 s
+  Run 26/30: 3.38864 s
+  Run 27/30: 3.39135 s
+  Run 28/30: 3.38781 s
+  Run 29/30: 3.38529 s
+  Run 30/30: 3.38788 s
+
+  Summary (64 threads):
+    Mean:     3.386414 s
+    Std Dev:  0.002238 s
+    95% CI:   +/-0.000801 s
+
+======================================================
+  OPENMP BENCHMARK - 72 THREADS
+  Algorithm: Parallel Suffix Array + LCP
+  Runs: 30
+======================================================
+Running 5 warm-up runs (not measured)...
+  Warm-up 1/5: 3.38295 s
+  Warm-up 2/5: 3.38171 s
+  Warm-up 3/5: 3.38499 s
+  Warm-up 4/5: 3.38435 s
+  Warm-up 5/5: 3.38553 s
+  Run  1/30: 3.38104 s
+  Run  2/30: 3.38152 s
+  Run  3/30: 3.38218 s
+  Run  4/30: 3.38349 s
+  Run  5/30: 3.38628 s
+  Run  6/30: 3.38741 s
+  Run  7/30: 3.384 s
+  Run  8/30: 3.38522 s
+  Run  9/30: 3.38675 s
+  Run 10/30: 3.38365 s
+  Run 11/30: 3.3836 s
+  Run 12/30: 3.38208 s
+  Run 13/30: 3.38481 s
+  Run 14/30: 3.38215 s
+  Run 15/30: 3.38361 s
+  Run 16/30: 3.38354 s
+  Run 17/30: 3.38331 s
+  Run 18/30: 3.38296 s
+  Run 19/30: 3.38202 s
+  Run 20/30: 3.38436 s
+  Run 21/30: 3.38608 s
+  Run 22/30: 3.38683 s
+  Run 23/30: 3.38704 s
+  Run 24/30: 3.38695 s
+  Run 25/30: 3.38201 s
+  Run 26/30: 3.38373 s
+  Run 27/30: 3.38168 s
+  Run 28/30: 3.38414 s
+  Run 29/30: 3.38137 s
+  Run 30/30: 3.3811 s
+
+  Summary (72 threads):
+    Mean:     3.383830 s
+    Std Dev:  0.001970 s
+    95% CI:   +/-0.000705 s
+
+======================================================
+  COMPREHENSIVE BENCHMARK SUMMARY
+======================================================
+
+Configuration     | Mean (s)   | Std Dev  | 95% CI      | Speedup vs GPU
+------------------|------------|----------|-------------|---------------
+Serial CPU        |    44.7658 |   0.0380 | +/-0.0334   | 69.20x
+OpenMP 16  threads |     3.5442 |   0.0061 | +/-0.0022   | 5.48x
+OpenMP 32  threads |     3.4208 |   0.0031 | +/-0.0011   | 5.29x
+OpenMP 36  threads |     3.4037 |   0.0038 | +/-0.0014   | 5.26x
+OpenMP 64  threads |     3.3864 |   0.0022 | +/-0.0008   | 5.23x
+OpenMP 72  threads |     3.3838 |   0.0020 | +/-0.0007   | 5.23x
+CUDA GPU          |     0.6469 |   0.0010 | +/-0.0003   | 1.00x (baseline)
+
+======================================================
+  KEY SPEEDUP METRICS
+======================================================
+
+  >>> GPU Speedup over Best OpenMP (72 threads): 5.23x <<<
+
+  Detailed Speedups:
+    GPU over OpenMP (16 threads): 5.48x
+    GPU over OpenMP (32 threads): 5.29x
+    GPU over OpenMP (36 threads): 5.26x
+    GPU over OpenMP (64 threads): 5.23x
+    GPU over OpenMP (72 threads): 5.23x
+
+======================================================
+  OPENMP SCALING ANALYSIS
+======================================================
+  16 threads: 1.00x speedup (ideal: 1.00x, efficiency: 100.0%)
+  32 threads: 1.04x speedup (ideal: 2.00x, efficiency: 52.0%)
+  36 threads: 1.04x speedup (ideal: 2.25x, efficiency: 46.2%)
+  64 threads: 1.05x speedup (ideal: 4.00x, efficiency: 26.2%)
+  72 threads: 1.05x speedup (ideal: 4.50x, efficiency: 23.3%)
+
+======================================================
+  STATISTICAL NOTES
+======================================================
+  - 30 runs per configuration for statistical significance
+  - By Central Limit Theorem, sample mean approaches population mean
+  - 95% Confidence Interval: Mean +/- 1.96 x Standard Error
+  - Standard Error = StdDev / sqrt(n)
+
+======================================================
+  Benchmark completed at: Wed Feb 25 14:04:25 IST 2026
+======================================================

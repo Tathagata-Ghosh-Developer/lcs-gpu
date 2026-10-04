@@ -1,0 +1,27 @@
+Earlier approach (superseded): binary search on the answer length + rolling-hash
+membership test, O(N log N). Summary of a 30-runs-per-configuration benchmark
+at N = 100,000,000. The source of this version is not part of this repository;
+it is kept only to document why the design changed. Host name removed.
+
+--- SYSTEM INFO ---
+CPU:     Intel(R) Xeon(R) Platinum 8352V CPU @ 2.10GHz
+CPUs:    72 available
+Memory:  124Gi
+NVIDIA RTX A5000, 24564 MiB
+======================================================
+
+  BENCHMARK SUMMARY
+======================================================
+Average Execution Times (30 runs):
+  OpenMP (36 threads): 961.397 seconds
+  OpenMP (72 threads): 904.646 seconds
+  CUDA (GPU):                       32.531 seconds
+
+Speedup Analysis:
+  72 threads over 36 threads: 1.06x
+  CUDA over OpenMP (36 threads):           29.55x
+  CUDA over OpenMP (72 threads):           27.81x
+
+======================================================
+  Benchmark completed at: Sun Feb  1 20:08:19 IST 2026
+======================================================
