@@ -33,7 +33,7 @@ OPENMP := $(BIN_DIR)/lcs_openmp
 CUDA   := $(BIN_DIR)/lcs_cuda
 OPENMP_TAU := $(BIN_DIR)/lcs_openmp_tau
 
-.PHONY: all clean help verify profile-tau lcs_serial lcs_openmp lcs_cuda lcs_openmp_tau
+.PHONY: all cpu clean help verify profile-tau lcs_serial lcs_openmp lcs_cuda lcs_openmp_tau
 
 all: $(SERIAL) $(OPENMP) $(CUDA)
 	@echo ""
@@ -41,6 +41,9 @@ all: $(SERIAL) $(OPENMP) $(CUDA)
 	@echo "  ./bin/lcs_serial <size> [0|1] [seed]"
 	@echo "  ./bin/lcs_openmp <size> [0|1]   # 0=benchmark, 1=debug"
 	@echo "  ./bin/lcs_cuda <size> [0|1]"
+
+# CPU-only build for machines without the CUDA toolkit
+cpu: $(SERIAL) $(OPENMP)
 
 lcs_serial: $(SERIAL)
 lcs_openmp: $(OPENMP)
@@ -56,7 +59,7 @@ $(SERIAL): $(SRC_DIR)/lcs_serial.cpp $(SRC_DIR)/random_text.hpp | $(BIN_DIR)
 	@test -f $@ && echo "  [OK] $@" || (echo "  [FAIL] $@" && exit 1)
 
 $(OPENMP): $(SRC_DIR)/lcs_openmp.cpp $(SRC_DIR)/random_text.hpp | $(BIN_DIR)
-	@echo "Building OpenMP (Prefix Doubling + Parallel Radix + LCP)..."
+	@echo "Building OpenMP (k-mer hash index + SIMD extension)..."
 	$(CXX) $(CXXFLAGS) $< -o $@
 	@test -f $@ && echo "  [OK] $@" || (echo "  [FAIL] $@" && exit 1)
 
@@ -97,16 +100,18 @@ clean:
 
 help:
 	@echo "============================================================"
-	@echo "LCS - Longest Common Substring (O(N) SA-IS Algorithm)"
+	@echo "LCS - Longest Common Substring of two random strings"
 	@echo "============================================================"
 	@echo ""
-	@echo "Algorithm: SA-IS (Induced Sorting) + Kasai's LCP"
-	@echo "  - SA-IS: O(N) suffix array construction"
-	@echo "  - Kasai: O(N) LCP array construction"
-	@echo "  - GPU: Warp-only max reduction (NO __syncthreads)"
+	@echo "Implementations:"
+	@echo "  - Serial: SA-IS suffix array + Kasai LCP, O(N) (reference)"
+	@echo "  - OpenMP: 7-mer hash index + AVX2 match extension"
+	@echo "  - CUDA:   prefix-doubling suffix array (Thrust radix sort)"
+	@echo "            + fused LCP / atomicMax kernel"
 	@echo ""
 	@echo "Build Targets:"
 	@echo "  make all      - Build lcs_serial, lcs_openmp and lcs_cuda"
+	@echo "  make cpu      - Build lcs_serial and lcs_openmp only (no nvcc)"
 	@echo "  make verify   - Build and run correctness tests"
 	@echo "  make clean    - Remove all executables"
 	@echo "  make help     - Show this help message"
